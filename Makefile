@@ -30,20 +30,50 @@ lint:
 
 .PHONY: run-celery
 run-celery:
-	poetry run celery -A thenewboston.project worker -l INFO
+	poetry run celery -A core.config worker -l INFO
 
 
 .PHONY: run-celery-beat
 run-celery-beat:
-	poetry run celery -A thenewboston.project beat -l INFO
+	poetry run celery -A core.config beat -l INFO
 
 .PHONY: shell
 shell:
-	poetry run python -m thenewboston.manage shell
+	poetry run python -m core.config shell
 
 .PHONY: dbshell
 dbshell:
-	poetry run python -m thenewboston.manage dbshell
+	poetry run python -m core.config dbshell
 
 .PHONY: update
 update: install migrate install-pre-commit ;
+
+.PHONY: build
+build:
+	# We are not building with Docker compose on purpose, so we can have just one image (and probably save disk space)
+	docker build . -t sample-project-backend:current --no-cache
+
+.PHONY: update-docker-compose-yaml
+update-docker-compose-yaml:
+	cp docker-compose.yml ~/
+
+.PHONY: docker-compose-down
+docker-compose-down:
+	cd; docker compose down
+
+.PHONY: run-production
+run-production:  # purposefully do not depend on `build` target
+	cd; docker compose up -d --no-build --force-recreate
+
+.PHONY: run-development
+run-development: build
+	# docker-compose.yml is inherited and overridden by docker-compose.dev.yml
+	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --force-recreate
+
+.PHONY: deploy
+deploy: build docker-compose-down update-docker-compose-yaml run-production;
+
+.PHONY: deploy-cleanup
+deploy-cleanup:
+	docker image prune -f
+	docker builder prune -f
