@@ -1,0 +1,53 @@
+x-service-override: &service-override
+    env_file:
+      - path: '.env'
+        required: false
+    environment:
+      THENEWBOSTON_SETTING_DATABASES: '{"default":{"HOST":"db"}}'
+    depends_on:
+      db:
+        condition: service_healthy
+
+services:
+
+  db:
+    image: postgres:16.2-alpine
+    restart: 'no'
+    ports:
+      - 127.0.0.1:5432:5432
+    environment:
+      POSTGRES_DB: sample_project
+      POSTGRES_USER: sample_project
+      POSTGRES_PASSWORD: sample_project
+    healthcheck:
+      test: PGPASSWORD=$${POSTGRES_PASSWORD} pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+
+  redis:
+    restart: 'no'  # so the service is not auto-started after developer's laptop reboot
+
+  app:
+    restart: 'no'
+    <<: *service-override
+
+  discord-bot:
+    restart: 'no'
+    <<: *service-override
+
+  celery:
+    restart: 'no'
+    <<: *service-override
+
+  celery-beat:
+    restart: 'no'
+    <<: *service-override
+
+volumes:
+  postgresql-data:
+    driver: local
+  redis-data:
+    driver: local

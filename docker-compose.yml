@@ -1,0 +1,41 @@
+x-service: &service
+  image: sample-project-backend:current
+  restart: unless-stopped
+  depends_on:
+    redis:
+      condition: service_started
+  env_file:
+    - path: '/etc/sample-project/.env'
+      required: false
+  environment:
+    CORES_SETTING_CHANNEL_LAYERS: '{"default":{"CONFIG":{"hosts":[["redis", 6379]]}}}'
+    CORES_SETTING_CELERY_RESULT_BACKEND: redis://redis:6379/0
+    CORES_SETTING_CELERY_BROKER_URL: redis://redis:6379/0
+
+services:
+
+  redis:
+    image: redis:6.2.6-alpine
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:6379:6379
+    volumes:
+      - redis-data:/var/lib/redis
+
+  app:
+    <<: *service
+    command: ./run-django.sh
+    ports:
+      - 127.0.0.1:8000:8000
+
+  celery:
+    <<: *service
+    command: ./run-celery.sh
+
+  celery-beat:
+    <<: *service
+    command: ./run-celery-beat.sh
+
+volumes:
+  redis-data:
+    driver: local
