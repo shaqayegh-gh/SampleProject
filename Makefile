@@ -39,14 +39,27 @@ run-celery-beat:
 
 .PHONY: shell
 shell:
-	poetry run python -m sample_project.config shell
+	poetry run python -m sample_project.manage shell
 
 .PHONY: dbshell
 dbshell:
-	poetry run python -m sample_project.config dbshell
+	poetry run python -m sample_project.manage dbshell
 
 .PHONY: update
 update: install migrate install-pre-commit ;
+
+
+.PHONY: test
+test:
+	poetry run pytest -v -rs --show-capture=no
+
+.PHONY: test-detailed
+test-detailed:
+	poetry run pytest -vv -rs -s
+
+.PHONY: lint-and-test
+lint-and-test: lint test ;
+
 
 .PHONY: build
 build:
@@ -76,11 +89,6 @@ deploy-cleanup:
 
 
 .PHONY: run-development
-run-development: build
-	# docker-compose.yml is inherited and overridden by docker-compose.dev.yml
-	docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --force-recreate
-
-.PHONY: restart-development
 run-development: build
 	# docker-compose.yml is inherited and overridden by docker-compose.dev.yml
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --force-recreate
