@@ -32,3 +32,6 @@ jobs:
 
       - name: Test
         run: make test
+        env:
+          SAMPLE_PROJECT_SETTING_DATABASES: '{"default":{"HOST":"db"}}'
+          SAMPLE_PROJECT_LOCAL_SETTINGS_PATH: './sample_project/config/settings/templates/settings.github.py'
