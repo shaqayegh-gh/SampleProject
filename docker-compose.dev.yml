@@ -1,20 +1,21 @@
 x-service-override: &service-override
-    env_file:
-      - path: '.env'
-        required: false
-    environment:
-      CORES_SETTING_DATABASES: '{"default":{"HOST":"db"}}'
-    depends_on:
-      db:
-        condition: service_healthy
+  env_file:
+    - path: '.env'
+      required: false
+  environment:
+    SAMPLE_PROJECT_SETTING_DATABASES: '{"default":{"HOST":"db"}}'
+  depends_on:
+    db:
+      condition: service_healthy
+
+
 
 services:
 
   db:
     image: postgres:16.2-alpine
+    container_name: sample_project_local_db
     restart: 'no'
-    ports:
-      - 127.0.0.1:5432:5432
     environment:
       POSTGRES_DB: sample_project
       POSTGRES_USER: sample_project
@@ -28,23 +29,39 @@ services:
       - postgresql-data:/var/lib/postgresql/data
 
   redis:
-    restart: 'no'  # so the service is not auto-started after developer's laptop reboot
+    image: docker.io/redis:6
+    # so the service is not auto-started after developer's system reboot
+    restart: 'no'
+    container_name: sample_project_local_redis
 
-  app:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: 'no'
+    container_name: sample_project_local_rabbitmq
+
+  backend:
     restart: 'no'
     <<: *service-override
-
-  discord-bot:
-    restart: 'no'
-    <<: *service-override
+    container_name: sample_project_local_backend
+    command: ./run-django.sh
 
   celery:
     restart: 'no'
     <<: *service-override
+    container_name: sample_project_local_celery
+    command: ./run-celery.sh
+    depends_on:
+      - rabbitmq
+      - db
 
   celery-beat:
     restart: 'no'
     <<: *service-override
+    container_name: sample_project_local_celerybeat
+    command: ./run-celery-beat.sh
+    depends_on:
+      - rabbitmq
+      - db
 
 volumes:
   postgresql-data:

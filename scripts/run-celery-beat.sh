@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-exec poetry run celery -A core.config beat -l INFO
+exec poetry run celery -A sample_project.config beat -l INFO

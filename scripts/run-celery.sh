@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-exec poetry run celery -A core.config worker -l INFO
+exec poetry run celery -A sample_project.config worker -l INFO

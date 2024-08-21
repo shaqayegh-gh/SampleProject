@@ -4,26 +4,36 @@ x-service: &service
   depends_on:
     redis:
       condition: service_started
+    rabbitmq:
+      condition: service_started
   env_file:
     - path: '/etc/sample-project/.env'
       required: false
   environment:
-    CORES_SETTING_CHANNEL_LAYERS: '{"default":{"CONFIG":{"hosts":[["redis", 6379]]}}}'
-    CORES_SETTING_CELERY_RESULT_BACKEND: redis://redis:6379/0
-    CORES_SETTING_CELERY_BROKER_URL: redis://redis:6379/0
+    SAMPLE_PROJECT_SETTING_CHANNEL_LAYERS: '{"default":{"CONFIG":{"hosts":[["redis", 6379]]}}}'
+    SAMPLE_PROJECT_SETTING_CELERY_RESULT_BACKEND: redis://redis:6379/0
+    SAMPLE_PROJECT_SETTING_CELERY_BROKER_URL: redis://redis:6379/0
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: sample_project_prod_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
   redis:
     image: redis:6.2.6-alpine
+    container_name: sample_project_prod_redis
     restart: unless-stopped
     ports:
       - 127.0.0.1:6379:6379
     volumes:
       - redis-data:/var/lib/redis
 
-  app:
+  backend:
     <<: *service
+    container_name: sample_project_prod_backend
     command: ./run-django.sh
     ports:
       - 127.0.0.1:8000:8000
@@ -31,10 +41,13 @@ services:
   celery:
     <<: *service
     command: ./run-celery.sh
+    container_name: sample_project_prod_celery
 
   celery-beat:
     <<: *service
     command: ./run-celery-beat.sh
+    container_name: sample_project_prod_celerybeat
+
 
 volumes:
   redis-data:

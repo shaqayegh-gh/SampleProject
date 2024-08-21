@@ -3,10 +3,10 @@ from pathlib import Path
 
 from split_settings.tools import include, optional
 
-from core.general.utils.pytest import is_pytest_running
+from sample_project.general.utils.pytest import is_pytest_running
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-ENVVAR_SETTINGS_PREFIX = 'CORES_SETTING_'
+ENVVAR_SETTINGS_PREFIX = 'SAMPLE_PROJECT_SETTING_'
 LOCAL_SETTINGS_PATH = os.getenv(f'{ENVVAR_SETTINGS_PREFIX}LOCAL_SETTINGS_PATH')
 
 if not LOCAL_SETTINGS_PATH:

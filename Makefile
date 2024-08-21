@@ -1,19 +1,19 @@
 .PHONY: run-server
 run-server:
-	poetry run python -m core.manage runserver
+	poetry run python -m sample_project.manage runserver
 
 
 .PHONY: migrate
 migrate:
-	poetry run python -m core.manage migrate
+	poetry run python -m sample_project.manage migrate
 
 .PHONY: migrations
 migrations:
-	poetry run python -m core.manage makemigrations
+	poetry run python -m sample_project.manage makemigrations
 
 .PHONY: superuser
 superuser:
-	poetry run python -m core.manage createsuperuser
+	poetry run python -m sample_project.manage createsuperuser
 
 .PHONY: install
 install:
@@ -30,20 +30,20 @@ lint:
 
 .PHONY: run-celery
 run-celery:
-	poetry run celery -A core.config worker -l INFO
+	poetry run celery -A sample_project.config worker -l INFO
 
 
 .PHONY: run-celery-beat
 run-celery-beat:
-	poetry run celery -A core.config beat -l INFO
+	poetry run celery -A sample_project.config beat -l INFO
 
 .PHONY: shell
 shell:
-	poetry run python -m core.config shell
+	poetry run python -m sample_project.config shell
 
 .PHONY: dbshell
 dbshell:
-	poetry run python -m core.config dbshell
+	poetry run python -m sample_project.config dbshell
 
 .PHONY: update
 update: install migrate install-pre-commit ;
@@ -65,10 +65,6 @@ docker-compose-down:
 run-production:  # purposefully do not depend on `build` target
 	cd; docker compose up -d --no-build --force-recreate
 
-.PHONY: run-development
-run-development: build
-	# docker-compose.yml is inherited and overridden by docker-compose.dev.yml
-	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --force-recreate
 
 .PHONY: deploy
 deploy: build docker-compose-down update-docker-compose-yaml run-production;
@@ -77,3 +73,9 @@ deploy: build docker-compose-down update-docker-compose-yaml run-production;
 deploy-cleanup:
 	docker image prune -f
 	docker builder prune -f
+
+
+.PHONY: run-development
+run-development: build
+	# docker-compose.yml is inherited and overridden by docker-compose.dev.yml
+	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --force-recreate
