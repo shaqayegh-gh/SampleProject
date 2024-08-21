@@ -78,4 +78,9 @@ deploy-cleanup:
 .PHONY: run-development
 run-development: build
 	# docker-compose.yml is inherited and overridden by docker-compose.dev.yml
-	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --force-recreate
+	docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --force-recreate
+
+.PHONY: restart-development
+run-development: build
+	# docker-compose.yml is inherited and overridden by docker-compose.dev.yml
+	docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --force-recreate

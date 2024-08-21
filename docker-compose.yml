@@ -12,7 +12,8 @@ x-service: &service
   environment:
     SAMPLE_PROJECT_SETTING_CHANNEL_LAYERS: '{"default":{"CONFIG":{"hosts":[["redis", 6379]]}}}'
     SAMPLE_PROJECT_SETTING_CELERY_RESULT_BACKEND: redis://redis:6379/0
-    SAMPLE_PROJECT_SETTING_CELERY_BROKER_URL: redis://redis:6379/0
+    SAMPLE_PROJECT_SETTING_CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672
+
 
 services:
   rabbitmq:
@@ -42,11 +43,15 @@ services:
     <<: *service
     command: ./run-celery.sh
     container_name: sample_project_prod_celery
+    depends_on:
+      - rabbitmq
 
   celery-beat:
     <<: *service
-    command: ./run-celery-beat.sh
     container_name: sample_project_prod_celerybeat
+    command: ./run-celery-beat.sh
+    depends_on:
+      - rabbitmq
 
 
 volumes:

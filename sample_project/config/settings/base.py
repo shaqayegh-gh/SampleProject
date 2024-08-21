@@ -63,8 +63,14 @@ WSGI_APPLICATION = 'sample_project.config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/home/sh/PycharmProjects/SampleProject/db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'sample_project',
+        'USER': 'sample_project',
+        'PASSWORD': 'sample_project',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'ATOMIC_REQUESTS': True,
+        'CONN_MAX_AGE': 0,
     }
 }
 

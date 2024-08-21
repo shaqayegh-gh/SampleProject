@@ -4,10 +4,10 @@ x-service-override: &service-override
       required: false
   environment:
     SAMPLE_PROJECT_SETTING_DATABASES: '{"default":{"HOST":"db"}}'
+    SAMPLE_PROJECT_SETTING_CELERY_BROKER_URL: 'amqp://guest:guest@rabbitmq:5672'
   depends_on:
     db:
       condition: service_healthy
-
 
 
 services:
@@ -43,13 +43,11 @@ services:
     restart: 'no'
     <<: *service-override
     container_name: sample_project_local_backend
-    command: ./run-django.sh
 
   celery:
     restart: 'no'
     <<: *service-override
     container_name: sample_project_local_celery
-    command: ./run-celery.sh
     depends_on:
       - rabbitmq
       - db
@@ -58,7 +56,6 @@ services:
     restart: 'no'
     <<: *service-override
     container_name: sample_project_local_celerybeat
-    command: ./run-celery-beat.sh
     depends_on:
       - rabbitmq
       - db
