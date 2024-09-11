@@ -21,6 +21,8 @@ django-celery-beat = "^2.6.0"
 redis = "^5.0.8"
 uvicorn = "^0.30.6"
 
+[tool.poetry.group.git.dependencies]
+sa_exception_handler = { git = "https://sanaap_shared_packages:glpat-jRNqdSLhyyiSCD156_du@gitlab.sanaap.co/backend/sanaap_shared_packages.git", branch = "master" }
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"
